@@ -63,4 +63,6 @@ public class Bid {
     public LocalDate getDate() {
         return date;
     }
+
+
 }

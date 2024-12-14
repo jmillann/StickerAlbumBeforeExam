@@ -30,12 +30,18 @@ public class BlindAuctionAPI {
 
     @PostMapping("/blindAuctions/bid")
     @ResponseStatus(HttpStatus.CREATED)
-    public void bidBlindly(@RequestBody BidCommand bidCommand) {
+    public void bidBlindly(@RequestBody BidCommand bidCommand) throws Exception {
         blindAuctionService.bidBlindly(bidCommand);
     }
 
     @GetMapping("/blindAuctions/{auctionId}/bids")
     public List<BidDTO> getBidsOfAuction(@PathVariable Long auctionId) {
         return blindAuctionService.getBidsOfAuction(auctionId);
+    }
+
+    @PostMapping("/blindAuction/complete")
+    @ResponseStatus(HttpStatus.OK)
+    public void completeBid() {
+        blindAuctionService.completeAuction();
     }
 }

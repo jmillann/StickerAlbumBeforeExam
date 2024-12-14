@@ -15,6 +15,8 @@ public class Collector {
     private String surname;
     private String email;
 
+    private double balance; //afegim diners
+
     public Long getId() {
         return id;
     }
@@ -46,4 +48,6 @@ public class Collector {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public double getBalance() {return balance;}
 }

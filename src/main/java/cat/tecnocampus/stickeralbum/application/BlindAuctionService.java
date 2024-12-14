@@ -1,9 +1,6 @@
 package cat.tecnocampus.stickeralbum.application;
 
-import cat.tecnocampus.stickeralbum.application.exceptions.BlindAuctionDoesNotExistException;
-import cat.tecnocampus.stickeralbum.application.exceptions.CollectionWithStickerDoesNotExists;
-import cat.tecnocampus.stickeralbum.application.exceptions.CollectorDoesNotExistException;
-import cat.tecnocampus.stickeralbum.application.exceptions.StickerDoesNotExistException;
+import cat.tecnocampus.stickeralbum.application.exceptions.*;
 import cat.tecnocampus.stickeralbum.application.inputDTOs.BidCommand;
 import cat.tecnocampus.stickeralbum.application.inputDTOs.BlindAuctionCommand;
 import cat.tecnocampus.stickeralbum.application.outputDTOs.BidDTO;
@@ -52,7 +49,7 @@ public class BlindAuctionService {
         blindAuctionRepository.save(blindAuction);
     }
 
-    public void bidBlindly(BidCommand bidCommand) {
+    public void bidBlindly(BidCommand bidCommand) throws Exception {
         Collector bidder = collectorRepository.findById(bidCommand.bidderId())
                 .orElseThrow(() -> new CollectorDoesNotExistException(bidCommand.bidderId()));
         BlindAuction blindAuction = blindAuctionRepository.findById(bidCommand.auctionId())
@@ -60,9 +57,19 @@ public class BlindAuctionService {
         if(!blindAuction.isOpen()) {
             throw new IllegalStateException("Auction with Id " + bidCommand.auctionId() + " is closed");
         }
+        //Comprobar que tenim diners
+        if (bidder.getBalance() < bidCommand.amount()) throw new CollectorDoesNotHaveEnoughBalanceException(bidCommand.bidderId());
         if (bidCommand.amount() < blindAuction.getInitialPrice()) {
             throw new IllegalStateException("Bid offer quantity " + bidCommand.amount() + " is too low");
         }
+        //comprobar que no hagi fet una oferta més alta
+        if (bidRepository.findLastBidByAuctionId(bidCommand.auctionId()).amount() >= bidCommand.amount()) {
+            throw new IllegalStateException("Bid offer quantity " + bidCommand.amount() + " is too low");
+        }
+        
+
+
+
         var bid = new Bid(blindAuction, bidder, bidCommand.amount());
         bidRepository.save(bid);
     }
@@ -75,4 +82,9 @@ public class BlindAuctionService {
         return bidRepository.findBidsByAuctionId(auctionId);
     }
 
+
+    public void completeAuction() {
+        List<BlindAuction> auctionsToComplete = blindAuctionRepository.findExpiredYesterday();
+
+    }
 }

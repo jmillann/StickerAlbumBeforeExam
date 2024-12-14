@@ -19,4 +19,14 @@ public interface BlindAuctionRepository extends JpaRepository<BlindAuction, Long
         ORDER BY ba.initialPrice ASC 
         """)
     List<BlindAuctionDTO> findOpenBlindAuctionsOfSticker(@Param("stickerId") Long stickerId);
+
+
+
+
+    @Query("""
+        SELECT ba
+        FROM BlindAuction ba
+        WHERE ba.endDate = CURRENT_DATE
+        """)
+    List<BlindAuction> findExpiredYesterday();
 }
