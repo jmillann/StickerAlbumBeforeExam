@@ -18,4 +18,5 @@ public interface HasStickerRepository extends JpaRepository<HasSticker, HasStick
         """)
     Optional<HasSticker> findByOwnerAndSticker(Collector owner, Sticker sticker);
 
+
 }

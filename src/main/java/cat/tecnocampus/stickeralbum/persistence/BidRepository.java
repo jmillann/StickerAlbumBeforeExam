@@ -27,4 +27,15 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
         ORDER BY b.date DESC
     """)
     BidDTO findLastBidByAuctionId(Long auctionId);
+
+    //return the amount of his last bid if he didnt bid return 0
+    @Query("""
+        SELECT b.offer
+        FROM Bid b 
+        WHERE b.auction.id = :auctionId AND b.bidder.id = :bidderId
+        ORDER BY b.date DESC
+    """)
+    double findLastBidAmountByAuctionIdAndBidderId(Long auctionId, Long bidderId);
 }
+
+

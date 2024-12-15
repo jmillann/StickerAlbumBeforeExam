@@ -5,10 +5,7 @@ import cat.tecnocampus.stickeralbum.application.inputDTOs.BidCommand;
 import cat.tecnocampus.stickeralbum.application.inputDTOs.BlindAuctionCommand;
 import cat.tecnocampus.stickeralbum.application.outputDTOs.BidDTO;
 import cat.tecnocampus.stickeralbum.application.outputDTOs.BlindAuctionDTO;
-import cat.tecnocampus.stickeralbum.domain.Bid;
-import cat.tecnocampus.stickeralbum.domain.BlindAuction;
-import cat.tecnocampus.stickeralbum.domain.Collector;
-import cat.tecnocampus.stickeralbum.domain.Sticker;
+import cat.tecnocampus.stickeralbum.domain.*;
 import cat.tecnocampus.stickeralbum.persistence.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -62,16 +59,19 @@ public class BlindAuctionService {
         if (bidCommand.amount() < blindAuction.getInitialPrice()) {
             throw new IllegalStateException("Bid offer quantity " + bidCommand.amount() + " is too low");
         }
-        //comprobar que no hagi fet una oferta més alta
+        //comprobar que no hagi fet una oferta més baixa que el ultim bid
         if (bidRepository.findLastBidByAuctionId(bidCommand.auctionId()).amount() >= bidCommand.amount()) {
             throw new IllegalStateException("Bid offer quantity " + bidCommand.amount() + " is too low");
         }
-        
+        //retornar els diners de la seva ultima bid si no en te retornar 0
+        double amountlastBid = bidRepository.findLastBidAmountByAuctionIdAndBidderId(bidCommand.bidderId(), bidCommand.auctionId());
 
-
+        bidder.setBalance(bidder.getBalance() + amountlastBid - bidCommand.amount());
+        collectorRepository.save(bidder);
 
         var bid = new Bid(blindAuction, bidder, bidCommand.amount());
         bidRepository.save(bid);
+
     }
 
     public List<BlindAuctionDTO> getOpenBlindAuctionsOfSticker(Long stickerId) {
@@ -83,8 +83,35 @@ public class BlindAuctionService {
     }
 
 
+    @Transactional
     public void completeAuction() {
         List<BlindAuction> auctionsToComplete = blindAuctionRepository.findExpiredYesterday();
+        for (BlindAuction auction : auctionsToComplete) {
+            blindAuctionRepository.save(auction);
+            BidDTO lastBid = bidRepository.findLastBidByAuctionId(auction.getId());
+            if (lastBid != null) {
+                Collector winner = collectorRepository.findById(lastBid.bidderId())
+                        .orElseThrow(() -> new CollectorDoesNotExistException(lastBid.bidderId()));
+                Collection collection = collectionRepository.findByCollectorAndSticker(winner, auction.getSticker())
+                        .orElseThrow(() -> new CollectionWithStickerDoesNotExists(winner.getId(),auction.getSticker().getId()));
 
+                HasSticker hasSticker = hasStickerRepository.findByOwnerAndSticker(winner, auction.getSticker())
+                        .orElseGet(() -> new HasSticker(auction.getSticker(), collection, 1));
+                hasSticker.addCopies(1);
+                hasStickerRepository.save(hasSticker);
+            }
+            //controlar que retornem els diners als perdedors
+            List<BidDTO> bids = bidRepository.findBidsByAuctionId(auction.getId());
+            for (BidDTO bid : bids) {
+                if (!bid.equals(lastBid)) {
+                    Collector bidder = collectorRepository.findById(bid.bidderId())
+                            .orElseThrow(() -> new CollectorDoesNotExistException(bid.bidderId()));
+                    double lastBidAmount = bidRepository.findLastBidAmountByAuctionIdAndBidderId(bid.bidderId(), auction.getId());
+                    bidder.setBalance(bidder.getBalance() + lastBidAmount);
+                    collectorRepository.save(bidder);
+                }
+            }
+
+        }
     }
 }

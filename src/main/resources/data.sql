@@ -1,10 +1,10 @@
-INSERT INTO Collector (name, surname, email) VALUES ('Josep', 'Roure', 'josep.roure@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Antonio', 'Garcia', 'antonio.garcia@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Maria', 'Sabadell', 'maria.sabadell@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Tina', 'Terassa', 'tina.terrassa@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Míriam', 'Solsona', 'miriam.solsona@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Paula', 'Mataro', 'paula.mataro@tecnocampus.cat');
-INSERT INTO Collector (name, surname, email) VALUES ('Tina', 'Tona', 'tina.tona@tecnocampus.cat');
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Josep', 'Roure', 'josep.roure@tecnocampus.cat', 1000);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Antonio', 'Garcia', 'antonio.garcia@tecnocampus.cat',66);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Maria', 'Sabadell', 'maria.sabadell@tecnocampus.cat',2000);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Tina', 'Terassa', 'tina.terrassa@tecnocampus.cat',1000);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Míriam', 'Solsona', 'miriam.solsona@tecnocampus.cat',0);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Paula', 'Mataro', 'paula.mataro@tecnocampus.cat',1000);
+INSERT INTO Collector (name, surname, email, balance) VALUES ('Tina', 'Tona', 'tina.tona@tecnocampus.cat',10000);
 
 
 /*
